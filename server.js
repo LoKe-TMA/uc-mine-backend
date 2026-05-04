@@ -8,38 +8,41 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// Middleware
-app.use(cors());
+// ==================== CORS (TMA အတွက် အရေးကြီး) ====================
+app.use(cors({
+  origin: '*',                    // TMA + Render Static Site အတွက်
+  methods: ['GET', 'POST', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// Environment Variables
+// Environment
 const BOT_TOKEN = process.env.BOT_TOKEN;
-const MONGO_URI = process.env.MONGO_URI;
 
-// MongoDB Connection
-mongoose.connect(MONGO_URI)
+// MongoDB
+mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('✅ MongoDB Connected Successfully'))
   .catch(err => console.error('❌ MongoDB Error:', err.message));
 
 // Routes
 app.use('/api', require('./routes/api'));
 
-// Home Route
+// Test Routes
 app.get('/', (req, res) => {
   res.json({ 
     message: '🚀 UC Mine Rewards Backend is Running!',
+    status: 'ok',
     bot_token: BOT_TOKEN ? '✅ Set' : '❌ Not Set'
   });
 });
 
-// Bot Info Route
 app.get('/bot-info', (req, res) => {
   res.json({ 
     status: "ok", 
-    bot_token_set: !!BOT_TOKEN,
-    message: BOT_TOKEN ? "Bot Token ထည့်ပြီး" : "Bot Token မထည့်သေးပါ"
+    bot_token_set: !!BOT_TOKEN 
   });
 });
 
