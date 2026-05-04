@@ -14,19 +14,35 @@ app.use(helmet());
 app.use(morgan('dev'));
 app.use(express.json());
 
-// MongoDB
-mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('✅ MongoDB Connected'))
-  .catch(err => console.error('❌ DB Error:', err));
+// Environment Variables
+const BOT_TOKEN = process.env.BOT_TOKEN;
+const MONGO_URI = process.env.MONGO_URI;
+
+// MongoDB Connection
+mongoose.connect(MONGO_URI)
+  .then(() => console.log('✅ MongoDB Connected Successfully'))
+  .catch(err => console.error('❌ MongoDB Error:', err.message));
 
 // Routes
 app.use('/api', require('./routes/api'));
 
-// Home
+// Home Route
 app.get('/', (req, res) => {
-  res.json({ message: '🚀 UC Mine Rewards Backend Running!' });
+  res.json({ 
+    message: '🚀 UC Mine Rewards Backend is Running!',
+    bot_token: BOT_TOKEN ? '✅ Set' : '❌ Not Set'
+  });
+});
+
+// Bot Info Route
+app.get('/bot-info', (req, res) => {
+  res.json({ 
+    status: "ok", 
+    bot_token_set: !!BOT_TOKEN,
+    message: BOT_TOKEN ? "Bot Token ထည့်ပြီး" : "Bot Token မထည့်သေးပါ"
+  });
 });
 
 app.listen(PORT, () => {
-  console.log(`✅ Server on http://localhost:${PORT}`);
+  console.log(`✅ Server is running on port ${PORT}`);
 });
